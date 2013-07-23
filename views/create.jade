@@ -1,0 +1,37 @@
+doctype 5
+html(lang="en")
+  head
+    title= BLOG
+    link(href='./css/bootstrap.min.css', rel='stylesheet')
+    link(href='./css/bootstrap-responsive.css', rel='stylesheet')
+    link(href='./css/blog.css', rel='stylesheet')
+  body
+    div(class="container")
+      div(class="hero-unit")
+        h1 A superhero blog
+        p
+          a(href="/posts", class="btn btn-primary btn-large") See the list of posts &raquo;
+
+      form(action="/posts", method="POST", class="form-horizontal well")
+        fieldset
+          legend Create a new post
+          div(class="control-group")
+            label(class="control-label", for="input01") Title
+            div(class="controls")
+              input(type="text", class="input-xlarge", id="title", name="title")
+              p(class="help-block") In addition to freeform text, any HTML5 text-based input appears like so.
+          div(class="control-group")
+            label(class="control-label", for="textarea") Content
+            div(class="controls")
+              textarea(class="input-xlarge", id="content", name="content", rows="3")
+          div(class="form-actions")
+            button(type="submit",class="btn btn-primary") Save changes
+            button(type="reset",class="btn") Cancel
+
+      hr
+
+      footer
+        p &copy; Company 2013
+      
+
+    script(src="http://code.jquery.com/jquery-2.0.3.min.js")

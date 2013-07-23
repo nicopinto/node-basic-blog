@@ -1,0 +1,30 @@
+doctype 5
+html(lang="en")
+  head
+    title= BLOG
+    link(href='./css/bootstrap.min.css', rel='stylesheet')
+    link(href='./css/bootstrap-responsive.css', rel='stylesheet')
+    link(href='./css/blog.css', rel='stylesheet')
+  body
+    div(class="container")
+      div(class="hero-unit")
+        h1 A superhero blog
+        h3 We have #{posts.length} posts
+        p
+          a(href="/create", class="btn btn-primary btn-large") Create your post &raquo;
+
+      div(class="row row-fluid span12")
+        each post, idx in posts
+          div(class="span4")
+            h2 #{post.title}
+            p.
+              #{post.content} 
+            p
+              a(class="btn",href="#") View details &raquo;
+
+      hr
+
+      footer
+        p &copy; Company 2013
+
+    script(src="http://code.jquery.com/jquery-2.0.3.min.js")
