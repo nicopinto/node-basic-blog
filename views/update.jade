@@ -18,12 +18,14 @@ html(lang="en")
           div(class="control-group")
             label(class="control-label", for="input01") Title
             div(class="controls")
-              input(type="text", class="input-xlarge", id="title", name="title")
+              input(type="text", class="input-xlarge", id="title", name="title", value="#{post.title}")
               p(class="help-block") In addition to freeform text, any HTML5 text-based input appears like so.
           div(class="control-group")
             label(class="control-label", for="textarea") Content
             div(class="controls")
-              textarea(class="input-xlarge", id="content", name="content", rows="3")
+              textarea(class="input-xlarge", id="content", name="content", rows="3") #{post.content}
+          input(type="hidden", name="idToUpdate", value="#{post._id}")  
+          input(type="hidden", name="isUpdating", value="true")
           div(class="form-actions")
             button(type="submit",class="btn btn-primary") Save changes
             button(type="reset",class="btn") Cancel

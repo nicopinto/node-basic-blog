@@ -11,6 +11,7 @@ var router = function (req, res) {
     fs = require('fs'),
     jade = require('jade'),
     Post = require('./models/post'),
+    url = require('url'),
     querystring = require('querystring');
 
 
@@ -64,24 +65,67 @@ var router = function (req, res) {
       });
 
       req.on('end', function () {
-        var jsonResponse = querystring.parse(body),
-            new_post = new Post.model({
-              "guid":000,
-              "title": jsonResponse.title,
-              "content": jsonResponse.content,
-              "link": "http://www.google.com"
-            });
+        var jsonResponse = querystring.parse(body), post = null;
 
-        new_post.save();
+        if(!jsonResponse.isUpdating){
+          post = new Post.model({
+            "title": jsonResponse.title,
+            "content": jsonResponse.content,
+            "link": "http://www.google.com"
+          });
+          post.save();
+
+          res.writeHead(302, {
+            'Location': '/posts'
+            //add other headers here...
+          });
+          res.end();
+        }else{
+
+          Post.model.findById(jsonResponse.idToUpdate, function(err, doc){
+            doc.title = jsonResponse.title;
+            doc.content = jsonResponse.content;
+            doc.save();
+
+            res.writeHead(302, {
+              'Location': '/posts'
+              //add other headers here...
+            });
+            res.end();
+          });
+
+          /*post.update({
+            "title": jsonResponse.title,
+            "content": jsonResponse.content
+          }, function(err, postUpdated){
+            console.log("POST UPDATED",postUpdated);
+            postUpdated.save();
+
+            res.writeHead(302, {
+              'Location': '/posts'
+              //add other headers here...
+            });
+            res.end();
+          });*/
+
+        }
+
+        /*post = new Post.model({
+          "title": jsonResponse.title,
+          "content": jsonResponse.content,
+          "link": "http://www.google.com"
+        });*/
+
+        //post.save();
 
         //res.writeHead(200, {'Content-Type': 'application/json'});
         //res.write(JSON.stringify(jsonResponse));
 
-        res.writeHead(302, {
+        /*res.writeHead(302, {
           'Location': '/posts'
           //add other headers here...
         });
-        res.end();
+        res.end();*/
 
       });
 
@@ -114,6 +158,47 @@ var router = function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
     res.write('<h1>Data Loaded!</h1>');
     res.end();*/
+
+
+  }else if(req.url.indexOf("/delete") > -1 ){
+
+    req.on('end', function () {
+
+      var id = req.url.split('delete/')[1]; 
+      console.log("Do you want to delete? " + id);   
+
+      if(Post.model.findByIdAndRemove(id).remove()){
+        console.log("Is was deleted!");
+      }
+
+      res.writeHead(302, {
+        'Location': '/posts'
+        //add other headers here...
+      });
+      res.end();
+
+    });
+
+  }else if(req.url.indexOf("/update") > -1 ){
+
+    res.writeHead(200, {'Content-Type': 'text/html'});
+   
+    var pageString = fs.readFileSync('./views/update.jade'),
+      fn = jade.compile(pageString, {});
+
+    //res.write(stringify(data));
+    //res.write(layoutString);
+
+    var id = req.url.split('update/')[1]; 
+    
+
+    Post.model.findById(id, function (err, post) {
+      
+      res.write(fn({
+        post: post
+      }));
+      res.end();
+    });
 
   }else if(req.url === "/create"){
 
