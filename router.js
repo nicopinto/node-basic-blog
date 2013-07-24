@@ -38,6 +38,7 @@ var router = function (req, res) {
   };
     
   if(req.url === "/posts"){
+
     if(req.method === "GET"){
       //res.writeHead(200, {'Content-Type': 'application/json'});
       res.writeHead(200, {'Content-Type': 'text/html'});
@@ -49,7 +50,10 @@ var router = function (req, res) {
 
       Post.model.find(function (err, posts) {
         //if (err) // TODO handle err
-        //console.log(posts)
+        posts.sort(function(a,b){
+          return a.title > b.title ? 1 : -1;
+        });
+
         res.write(fn({
           posts: posts//eval('(' + posts + ')')
         }));
@@ -94,71 +98,11 @@ var router = function (req, res) {
             res.end();
           });
 
-          /*post.update({
-            "title": jsonResponse.title,
-            "content": jsonResponse.content
-          }, function(err, postUpdated){
-            console.log("POST UPDATED",postUpdated);
-            postUpdated.save();
-
-            res.writeHead(302, {
-              'Location': '/posts'
-              //add other headers here...
-            });
-            res.end();
-          });*/
-
         }
-
-        /*post = new Post.model({
-          "title": jsonResponse.title,
-          "content": jsonResponse.content,
-          "link": "http://www.google.com"
-        });*/
-
-        //post.save();
-
-        //res.writeHead(200, {'Content-Type': 'application/json'});
-        //res.write(JSON.stringify(jsonResponse));
-
-        /*res.writeHead(302, {
-          'Location': '/posts'
-          //add other headers here...
-        });
-        res.end();*/
 
       });
 
     }
-
-    /*}else if(req.url === "/data"){
-    var post_1 = new Post.model({
-      "guid":7,
-      "title": "Post Title 7",
-      "content": "Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.",
-      "link": "http://www.google.com"
-    }),
-    post_2 = new Post.model({
-      "guid":8,
-      "title": "Post Title 8",
-      "content": "Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.",
-      "link": "http://www.google.com"
-    }),
-    post_3 = new Post.model({
-      "guid":9,
-      "title": "Post Title 9",
-      "content": "Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.",
-      "link": "http://www.google.com"
-    });
-
-    post_1.save();
-    post_2.save();
-    post_3.save();
-
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.write('<h1>Data Loaded!</h1>');
-    res.end();*/
-
 
   }else if(req.url.indexOf("/delete") > -1 ){
 
@@ -168,7 +112,7 @@ var router = function (req, res) {
       console.log("Do you want to delete? " + id);   
 
       if(Post.model.findByIdAndRemove(id).remove()){
-        console.log("Is was deleted!");
+        console.log("It was deleted!");
       }
 
       res.writeHead(302, {
@@ -184,13 +128,8 @@ var router = function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
    
     var pageString = fs.readFileSync('./views/update.jade'),
-      fn = jade.compile(pageString, {});
-
-    //res.write(stringify(data));
-    //res.write(layoutString);
-
-    var id = req.url.split('update/')[1]; 
-    
+      fn = jade.compile(pageString, {}),
+      id = req.url.split('update/')[1]; 
 
     Post.model.findById(id, function (err, post) {
       
@@ -205,14 +144,10 @@ var router = function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
 
     var pageString = fs.readFileSync('./views/create.jade'),
-      //posts = fs.readFileSync('./data/posts.json'),
       fn = jade.compile(pageString, {});
 
-    //res.write(stringify(data));
-    //res.write(layoutString);
-
     res.write(fn({
-      
+      //properties to the view
     }));
 
     res.end();

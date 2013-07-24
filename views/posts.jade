@@ -20,8 +20,10 @@ html(lang="en")
             p.
               #{post.content} 
             p
-              a(class="btn btn-danger", href="/delete/#{post._id}") Delete &raquo;
-              a(class="btn btn-primary", href="/update/#{post._id}") Edit &raquo;
+              a(class="btn btn-danger", href="/delete/#{post._id}") Delete
+                b(class="icon-remove")
+              a(class="btn btn-primary", href="/update/#{post._id}") Edit
+                b(class="icon-edit")
 
       hr
 
