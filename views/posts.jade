@@ -6,24 +6,45 @@ html(lang="en")
     link(href='/css/bootstrap-responsive.css', rel='stylesheet')
     link(href='/css/blog.css', rel='stylesheet')
   body
+
+    div(class="navbar navbar-inverse navbar-fixed-top")
+      div(class="navbar-inner")
+        div(class="container")
+          button(type="button", class="btn btn-navbar", data-toggle="collapse", data-target=".nav-collapse")
+            span(class="icon-bar")
+            span(class="icon-bar")
+            span(class="icon-bar")
+          a(class="brand", href="#") Project name
+          div(class="nav-collapse collapse")
+            if (!sessionHeader)
+              form(class="navbar-form pull-right", method="POST", action="/login")
+                input(class="span2", type="text", name="username", placeholder="Email")
+                input(class="span2", type="password", name="password", placeholder="Password")
+                button(type="submit", class="btn") Sign in
+            else
+              p Hello #{sessionHeader}
+              a(href="logout", class="btn btn-warning") logout
+
     div(class="container")
       div(class="hero-unit")
         h1 A superhero blog
-        h3 We have #{posts.length} posts
-        p
-          a(href="/create", class="btn btn-primary btn-large") Create your post &raquo;
+        h3 We have #{posts.length} posts         
+        if (sessionHeader)
+          p
+            a(href="/create", class="btn btn-primary btn-large") Create your post &raquo;
 
       div(class="row row-fluid span12")
         each post, idx in posts
           div(class="span4")
             h2 #{post.title}
             p.
-              #{post.content} 
-            p
-              a(class="btn btn-danger", href="/delete/#{post._id}") Delete
-                b(class="icon-remove")
-              a(class="btn btn-primary", href="/update/#{post._id}") Edit
-                b(class="icon-edit")
+              #{post.content}            
+            if (sessionHeader)
+              p
+                a(class="btn btn-danger", href="/delete/#{post._id}") Delete
+                  b(class="icon-remove")
+                a(class="btn btn-primary", href="/update/#{post._id}") Edit
+                  b(class="icon-edit")
 
       hr
 

@@ -18,16 +18,16 @@ var router = function (req, res) {
   var db = Post.connection;
   db.on('error', console.error.bind(console, 'connection error:'));
 
-  if(fs.existsSync('./' + req.url)){
+  if(fs.existsSync('./' + req.url) && req.url != "/"){
     var extension = req.url.substr(req.url.lastIndexOf('.') + 1),
-      contentType = mimetypes[extension];
+      contentType = mimetypes[extension],
+      fileString = fs.readFileSync('./' + req.url);
     if(contentType){
-        res.writeHeader(200, {'Content-Type': contentType});  
+      res.writeHeader(200, {'Content-Type': contentType});  
     }else{
       res.writeHeader(200, {'Content-Type': 'text/plain'});
     }
-    var fileString = fs.readFileSync('./' + req.url);
-        res.write(fileString);  
+    res.write(fileString);  
     res.end();
   }
 
@@ -35,6 +35,14 @@ var router = function (req, res) {
     var result = num / 3,
       isInt = result % 1 === 0;
     return isInt;
+  }, getAllCookies = function(req){
+    // To Get a Cookie
+    var cookies = {};
+    req.headers.cookie && req.headers.cookie.split(';').forEach(function( cookie ) {
+      var parts = cookie.split('=');
+      cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
+    });
+    return cookies;
   };
     
   if(req.url === "/posts"){
@@ -45,18 +53,23 @@ var router = function (req, res) {
 
       var layoutString = fs.readFileSync('./views/posts.jade'),
         posts = fs.readFileSync('./data/posts.json'),
-        fn = jade.compile(layoutString, {});
-
+        fn = jade.compile(layoutString, {}),
+        cks = getAllCookies(req);
 
       Post.model.find(function (err, posts) {
         //if (err) // TODO handle err
+        
         posts.sort(function(a,b){
           return a.title > b.title ? 1 : -1;
         });
 
+        console.log("sessionHeader", cks.userSession);
+
         res.write(fn({
-          posts: posts//eval('(' + posts + ')')
+          posts : posts,
+          sessionHeader : cks.userSession
         }));
+
         res.end();
       });
 
@@ -152,10 +165,42 @@ var router = function (req, res) {
 
     res.end();
 
-  }else if(req.url === "/data"){    
-    res.writeHead(200, {'Content-Type': 'text/html'});
-
+  }else if(req.url === "/logout"){   
+    res.setHeader("Set-Cookie", ["userSession="]);
+    res.writeHead(302, {
+      'Location': '/posts'
+    });
     res.end();
+  }else if(req.url === "/login"){   
+
+    if(req.method === "POST"){
+      //res.writeHead(200, {'Content-Type': 'text/html'});
+      var body = "";
+      req.on('data', function (chunk) {
+        body += chunk;
+      });
+
+      req.on('end', function () {
+        var jsonData = querystring.parse(body);
+        if(jsonData.username.toLowerCase() === 'nico'){
+          if(jsonData.password.toLowerCase() === 'admin'){    
+            console.log('LOGGED', res.getHeader('session'));
+            res.setHeader("Set-Cookie", ["userSession=nico"]);
+            res.writeHead(302, {
+              'Location': '/posts'
+              //add other headers here...
+            });
+            res.end();
+          }
+        }
+
+      });
+
+    }else{
+      res.writeHead(404, {'Content-Type': 'text/plain'});
+      res.end();      
+    }
+
   }else{
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end();
